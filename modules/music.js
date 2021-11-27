@@ -67,9 +67,8 @@ module.exports.leaveChannel = leaveChannel = async (gid) => {
   connection.destroy();
   clearTimeout(timeout[gid]);
   queue.delete(gid);
-  return await endInteraction(interaction);
+  return
 }
-
 module.exports.pause = async (interaction) => {
   const guildID = interaction.guildId
   const serverQueue = queue.get(guildID)
