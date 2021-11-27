@@ -1,4 +1,4 @@
-const { init, pause, resume, skip } = require('../modules/music')
+const { init, pause, resume, skip, stop, leaveChannel } = require('../modules/music')
 
 module.exports = async (interaction) => {
   const { commandName } = interaction;
@@ -16,7 +16,8 @@ module.exports = async (interaction) => {
     case 'leave':
       return await leaveChannel(interaction.guildId)
     default:
-      return await interaction.reply('ยังไม่ได้ทำ')
+      await interaction.reply('ยังไม่ได้ทำ')
+      return setTimeout(async () => { await interaction.deleteReply()},5000)
   }
   
 }
