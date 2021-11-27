@@ -1,4 +1,4 @@
-const { init, pause, resume, skip, stop, leaveChannel } = require('../modules/music')
+const { init, pause, resume, skip, stop, leaveChannel, clearQueue } = require('../modules/music')
 
 module.exports = async (interaction) => {
   const { commandName } = interaction;
@@ -22,4 +22,5 @@ module.exports = async (interaction) => {
   
 }
 
-module.exports.clearQueue = { clearQueue } = require('../modules/music')
+module.exports.clearQueue = clearQueue
+module.exports.leaveChannel = leaveChannel

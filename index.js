@@ -44,9 +44,9 @@ client.on('messageCreate', async (message) => {
 })
 
 client.on('voiceStateUpdate', async (oldVoiceState, voiceState) => {
-	console.log('voiceStateUpdate', voiceState)
+	// console.log('voiceStateUpdate', voiceState)
 	if (voiceState.channelId == null) {
-		return await clearQueue(voiceState.guild.id)
+		return await router.music.clearQueue(voiceState.guild.id)
 	}
 	if (voiceState.member.user == client.user) {
     if (!voiceState.serverDeaf) {
@@ -54,6 +54,15 @@ client.on('voiceStateUpdate', async (oldVoiceState, voiceState) => {
     }
 
   }
+
+	if (voiceState.member.user.bot) return;
+
+	const voiceChannel = voiceState.channel
+	if (membersCount(voiceChannel.members) < 1) {
+		return router.music.leaveChannel(voiceState.guild.id)
+	}
+
+
 })
 
 client.on('interactionCreate', async interaction => {
@@ -73,6 +82,11 @@ client.on('interactionCreate', async interaction => {
   }
 	
 });
+
+function membersCount(members) {
+  const nobot = members.filter(m => !m.user.bot)
+  return nobot.size
+}
 
 client.once('ready', () => {
   console.log('Ready!');

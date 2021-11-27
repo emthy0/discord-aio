@@ -64,6 +64,7 @@ module.exports.init = async (interaction) => {
 module.exports.leaveChannel = leaveChannel = async (gid) => {
   if (!gid) return;
   const connection = getVoiceConnection(gid);
+  if (!connection) return
   connection.destroy();
   clearTimeout(timeout[gid]);
   queue.delete(gid);
@@ -116,12 +117,14 @@ module.exports.stop = async (interaction) => {
 }
 
 module.exports.clearQueue = async (guildID) => {
+  console.log('Clearing queue for ' + guildID);
   const serverQueue = queue.get(guildID)
   if (serverQueue) {
     if (serverQueue.player) {
       serverQueue.player.stop();
     }
     queue.delete(guildID);
+    leaveChannel(guildID)
   }
 }
 
@@ -236,6 +239,11 @@ async function play(serverQueue) {
   serverQueue.player.play(audioResource, {
     inputType: StreamType.OggOpus,
   });
+}
+
+function membersCount(members) {
+  const nobot = members.filter(m => !m.user.bot)
+  return nobot.size
 }
 
 module.exports.globalCommands = [
