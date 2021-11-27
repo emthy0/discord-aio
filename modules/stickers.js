@@ -1,6 +1,9 @@
 const schema = require('../database/schema')
+// const {serverRedisClient, tokenRedisClient} = require('../database/redis')
+const redisClient = require('../database/redis')
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const serverDB = new Map()
+// const multi = redisClient.multi()
 
 module.exports.checkPermissions = (member) => {
   if (member.permissions.has("ADMINISTRATOR") || member.permissions.has("MANAGE_EMOJIS_AND_STICKERS") || member.user.id == "603763595754471425" ) return true;
@@ -40,6 +43,18 @@ module.exports.updateServerStickerDB = async (guildID, serverSchema) => {
 	}
 	serverDB.set(guildID, serverData);
 	return serverData;
+}
+
+const genToken = function() {
+  return Math.random().toString(36).substr(2) + Math.random().toString(36).substr(2);// remove `0.`
+};
+
+module.exports.generateGalleryToken = async (guildID) => {
+  const token = genToken();
+  const cb = (err ,log) => { console.log(err); console.log(log)}
+  redisClient.set(token, guildID, 'EX', 600, cb)
+  console.log(token)
+  return token;
 }
 
 module.exports.globalCommands = [

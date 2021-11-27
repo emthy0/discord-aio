@@ -1,9 +1,10 @@
-const {checkPermissions, updateServerStickerDB, newServerStickerDB, getServerCache} = require('../modules/stickers')
+const {checkPermissions, updateServerStickerDB, generateGalleryToken, getServerCache} = require('../modules/stickers')
 const registerModule = require('../modules/register')
 module.exports = async function (interaction) {
   const { commandName } = interaction;
-  channelID = interaction.channelId
-	guildID = interaction.guildId
+	console.log('Using Sticker module', commandName);
+  const channelID = interaction.channelId
+	const guildID = interaction.guildId
 
   const {serverSticker, serverSchema} = await getServerCache(guildID)
   
@@ -16,7 +17,12 @@ module.exports = async function (interaction) {
 		case 'list_sticker': {
 			if (serverSticker.length == 0) return await interaction.reply('No sticker on this server')
 			// else return await interaction.reply(serverSticker.map(sticker => sticker.stickerName).join(', '))
-			else return await interaction.reply(`https://stickers-gallary.herokuapp.com/?gid=${guildID}`)
+			
+			else {
+				const token = await generateGalleryToken(guildID)
+				// return await interaction.reply(`https://stickers-gallary.herokuapp.com/?gid=${guildID}`)
+				return await interaction.reply(`https://stickers-gallary.herokuapp.com/?token=${token}`)
+			}
 		}
 
 		case 'add_sticker': {
@@ -72,4 +78,9 @@ module.exports = async function (interaction) {
 			return await interaction.reply(sticker.stickerUrl)
 		}
 	}
+}
+
+module.exports.isSticker = async (guildID, stickerName) => {
+  const {serverSticker} = await getServerCache(guildID)
+	return serverSticker.some(sticker => sticker.stickerName == stickerName)
 }

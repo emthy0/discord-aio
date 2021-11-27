@@ -72,8 +72,9 @@ client.on('interactionCreate', async interaction => {
 	channelID = interaction.channelId
 	guildID = interaction.guildId
 	if (!guildID) return await interaction.reply('For server only')
-	// console.log(serverSticker)
-  if (commandName.includes('sticker')) {
+	console.log(commandName)
+	// console.log(stickersModule.globalCommands)
+  if (await router.sticker.isSticker(guildID, commandName) || stickersModule.globalCommands.some(command => command.name == commandName)) {
     return await router.sticker(interaction)
   }
 
