@@ -113,8 +113,10 @@ module.exports.stop = async (interaction) => {
 
 
 async function endInteraction(interaction) {
-  await interaction.reply('...')
-  return await interaction.deleteReply()
+  if (!interaction.replied) {
+    await interaction.reply('...')
+    return await interaction.deleteReply()
+  }
 }
 
 async function execute(interaction, serverQueue) {
@@ -130,7 +132,13 @@ async function execute(interaction, serverQueue) {
       key: process.env.youtubeApiKey
     })
     // console.log('Song',videos.results.filter(v => v.kind == 'youtube#video'))
-    songInfo = await ytPlayer.video_info(videos.results.filter(v => v.kind == 'youtube#video')[0].link);
+    const vdoResult = videos.results.filter(v => v.kind == 'youtube#video')
+    if (vdoResult.length == 0) {
+      await interaction.reply('No song found')
+      setTimeout(async () => { await interaction.deleteReply()},5000)
+      return
+    }
+    songInfo = await ytPlayer.video_info(vdoResult[0].link);
   }
   console.log(songInfo);
   const voiceURL = songInfo.video_details.url;
