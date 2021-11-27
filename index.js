@@ -43,6 +43,19 @@ client.on('messageCreate', async (message) => {
 	// }
 })
 
+client.on('voiceStateUpdate', async (oldVoiceState, voiceState) => {
+	console.log('voiceStateUpdate', voiceState)
+	if (voiceState.channelId == null) {
+		return await clearQueue(voiceState.guild.id)
+	}
+	if (voiceState.member.user == client.user) {
+    if (!voiceState.serverDeaf) {
+      voiceState.setDeaf(true)
+    }
+
+  }
+})
+
 client.on('interactionCreate', async interaction => {
 	if (!interaction.isCommand()) return;
 	// console.log(interaction);

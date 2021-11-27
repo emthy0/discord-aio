@@ -72,12 +72,12 @@ module.exports.leaveChannel = leaveChannel = async (gid) => {
 module.exports.pause = async (interaction) => {
   const guildID = interaction.guildId
   const serverQueue = queue.get(guildID)
-  if (!serverQueue) return await interaction.reply('No song to pause');
+  if (!serverQueue) return await temporaryReply(interaction, 'No song playing');
   serverQueue.player.pause();
   serverQueue.playing = false;
-  if (timeout[gid]) clearTimeout(timeout[gid]);
-  timeout[gid] = setTimeout(() => {
-    leaveChannel(gid);
+  if (timeout[guildID]) clearTimeout(timeout[guildID]);
+  timeout[guildID] = setTimeout(() => {
+    leaveChannel(guildID);
   }, 10 * 60 * 1000);
   return await endInteraction(interaction);
 }
@@ -85,8 +85,8 @@ module.exports.pause = async (interaction) => {
 module.exports.resume = async (interaction) => {
   const guildID = interaction.guildId
   const serverQueue = queue.get(guildID)
-  if (timeout[gid]) clearTimeout(timeout[gid]);
-  if (!serverQueue) return await interaction.reply('No song to resume');
+  if (timeout[guildID]) clearTimeout(timeout[guildID]);
+  if (!serverQueue) return await temporaryReply(interaction, 'No song playing');
   serverQueue.player.unpause();
   return await endInteraction(interaction);
 }
@@ -94,8 +94,9 @@ module.exports.resume = async (interaction) => {
 module.exports.skip = async (interaction) => {
   const guildID = interaction.guildId
   const serverQueue = queue.get(guildID)
-  if (!serverQueue) return await interaction.reply('No song to skip');
+  if (!serverQueue) return await temporaryReply(interaction, 'No song to skip to');
   serverQueue.audioQueue.shift();
+  if (serverQueue.audioQueue.length === 0) return await temporaryReply(interaction, 'No song to skip to');
   play(serverQueue)
   return await endInteraction(interaction);
 }
@@ -103,13 +104,33 @@ module.exports.skip = async (interaction) => {
 module.exports.stop = async (interaction) => {
   const guildID = interaction.guildId
   const serverQueue = queue.get(guildID)
-  if (!serverQueue) return await interaction.reply('No song to stop');
+  if (!serverQueue) return await temporaryReply(interaction, 'No song playing');
   serverQueue.audioQueue.shift();
   play(serverQueue)
   serverQueue.player.pause();
+  if (timeout[guildID]) clearTimeout(timeout[guildID]);
+  timeout[guildID] = setTimeout(() => {
+    leaveChannel(guildID);
+  }, 10 * 60 * 1000);
   return await endInteraction(interaction);
 }
 
+module.exports.clearQueue = async (guildID) => {
+  const serverQueue = queue.get(guildID)
+  if (serverQueue) {
+    if (serverQueue.player) {
+      serverQueue.player.stop();
+    }
+    queue.delete(guildID);
+  }
+}
+
+async function temporaryReply(interaction, text='...') {
+  if (!interaction.replied) {
+    await interaction.reply(text)
+    setTimeout(async () => { await interaction.deleteReply()},5000)
+  }
+}
 
 async function endInteraction(interaction) {
   if (!interaction.replied) {
@@ -133,8 +154,7 @@ async function execute(interaction, serverQueue) {
     // console.log('Song',videos.results.filter(v => v.kind == 'youtube#video'))
     const vdoResult = videos.results.filter(v => v.kind == 'youtube#video')
     if (vdoResult.length == 0) {
-      await interaction.reply('No song found')
-      setTimeout(async () => { await interaction.deleteReply()},5000)
+      await temporaryReply(interaction, 'No video found.')
       return
     }
     songInfo = await ytPlayer.video_info(vdoResult[0].link);
@@ -203,6 +223,7 @@ async function play(serverQueue) {
   if (!audioResource) {
     console.log('No audio resource');
     serverQueue.playing = false;
+    serverQueue.player.stop()
     timeout[gid] = setTimeout(() => {
       leaveChannel(gid);
     }, 5 * 60 * 1000);

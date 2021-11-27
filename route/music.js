@@ -21,3 +21,5 @@ module.exports = async (interaction) => {
   }
   
 }
+
+module.exports.clearQueue = { clearQueue } = require('../modules/music')
