@@ -48,16 +48,16 @@ module.exports.init = async (interaction) => {
   // musicName = interaction.options.get('name').value;
   const serverQueue = queue.get(guildID)
   var voiceChannel = interaction.member.voice.channel;
-  if (!voiceChannel) return await interaction.reply('หนูไม่รู้ว่าต้องไปห้องไหน');
+  if (!voiceChannel) return await interaction.editReply('หนูไม่รู้ว่าต้องไปห้องไหน');
   const permissions = voiceChannel.permissionsFor(interaction.client.user)
   // console.log(interaction.client)
   // console.log(voiceChannel.permissionsFor(interaction.client))
   // console.log(permissions)
   if (!permissions.has('CONNECT') || !permissions.has('SPEAK')) {
-    return await interaction.reply('หนูไม่มีสิทธ์พูดอะ');
+    return await interaction.editReply('หนูไม่มีสิทธ์พูดอะ');
   }
   execute(interaction, serverQueue)
-  await interaction.reply('...')
+  // await interaction.editReply('...')
   return await interaction.deleteReply()
 }
 
@@ -131,15 +131,16 @@ module.exports.clearQueue = async (guildID) => {
 async function temporaryReply(interaction, text='...') {
   if (!interaction.replied) {
     await interaction.reply(text)
-    setTimeout(async () => { await interaction.deleteReply()},5000)
-  }
+  } else interaction.editReply(text)
+  setTimeout(async () => { await interaction.deleteReply()},5000)
 }
 
 async function endInteraction(interaction) {
   if (!interaction.replied) {
-    await interaction.reply('...')
-    return await interaction.deleteReply()
+    await interaction.deferReply()
+    
   }
+  return await interaction.deleteReply()
 }
 
 async function execute(interaction, serverQueue) {

@@ -16,7 +16,7 @@ module.exports = async (interaction) => {
     case 'leave':
       return await leaveChannel(interaction.guildId)
     default:
-      await interaction.reply('ยังไม่ได้ทำ')
+      await interaction.editReply('ยังไม่ได้ทำ')
       return setTimeout(async () => { await interaction.deleteReply()},5000)
   }
   
