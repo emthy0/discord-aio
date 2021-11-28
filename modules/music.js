@@ -2,6 +2,7 @@ const { generateDependencyReport } = require('@discordjs/voice');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 // const config = require('./config.js')
 console.log(generateDependencyReport());
+// const ytdl = require('ytdl-core');
 const ytPlayer = require('play-dl')
 const ytsearch = require('youtube-search')
 const {
@@ -163,7 +164,7 @@ async function execute(interaction, serverQueue) {
     }
     songInfo = await ytPlayer.video_info(vdoResult[0].link);
   }
-  console.log(songInfo);
+  // console.log(songInfo);
   const voiceURL = songInfo.video_details.url;
   console.log(voiceURL);
   const text = {
@@ -171,11 +172,17 @@ async function execute(interaction, serverQueue) {
     title: songInfo.video_details.title,
     gid: interaction.guild.id,
   };
-  const stream = await ytPlayer.stream(voiceURL)
+  const stream = await ytPlayer.stream(voiceURL, {
+    quality: 2
+  })
+  // const stream = await ytdl(voiceURL);
+  // console.log('ytdl', stream);
+
+  // const audioResource = createAudioResource(stream);
   const audioResource = createAudioResource(stream.stream, {
     inputType : stream.type
   });
-  console.log('adr', audioResource)
+  // console.log('adr', audioResource)
   if (!serverQueue) {
     const queueContruct = {
       gid: guildID,
@@ -196,7 +203,7 @@ async function execute(interaction, serverQueue) {
 
   console.log('Adding audio to queue.');
   serverQueue.audioQueue.push(audioResource);
-  console.log('sq',serverQueue)
+  // console.log('sq',serverQueue)
   play(serverQueue);
 }
 

@@ -1,4 +1,4 @@
-const {checkPermissions, updateServerStickerDB, generateGalleryToken, getServerCache} = require('../modules/stickers')
+const {checkPermissions, updateServerStickerDB, generateGalleryToken, getServerCache, toSnakeCase} = require('../modules/stickers')
 const registerModule = require('../modules/register')
 module.exports = async function (interaction) {
   const { commandName } = interaction;

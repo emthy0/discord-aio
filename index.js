@@ -107,3 +107,7 @@ client.once('disconnect', () => {
 });
 
 client.login(process.env.discordToken);
+
+process.on('unhandledRejection', error => {
+	console.error('Unhandled promise rejection:', error);
+});
