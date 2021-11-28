@@ -45,13 +45,14 @@ client.on('messageCreate', async (message) => {
 
 client.on('voiceStateUpdate', async (oldVoiceState, voiceState) => {
 	// console.log('voiceStateUpdate', voiceState)
-	if (voiceState.channelId == null) {
-		return await router.music.clearQueue(voiceState.guild.id)
-	}
+
 	if (voiceState.member.user == client.user) {
     if (!voiceState.serverDeaf) {
       voiceState.setDeaf(true)
     }
+		if (voiceState.channelId == null) {
+			return await router.music.clearQueue(voiceState.guild.id)
+		}
 
   }
 
