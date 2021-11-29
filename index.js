@@ -1,3 +1,4 @@
+// require('dotenv').config({path:'./.env.dev'})
 require('dotenv').config()
 const { Client } = require('discord.js');
 const client = new Client({ intents: ["GUILDS", "GUILD_MEMBERS", "GUILD_MESSAGES", "DIRECT_MESSAGES","GUILD_VOICE_STATES"], partials: ["CHANNEL"] })
@@ -13,6 +14,7 @@ const router = require('./route')
 // const stickerRoute = require('./route/stickers')
 // console.log(stickerRoute)
 const musicModule = require('./modules/music')
+const musicConsoleModule = require('./modules/music-console')
 const stickersModule = require('./modules/stickers')
 const globalCommands = stickersModule.globalCommands.concat(musicModule.globalCommands)
 
@@ -27,11 +29,17 @@ mongoose.connection.on("error", (err) => {
 });
 
 client.on('messageCreate', async (message) => {
+	if (message.author.bot) return
   if (message.content == '!setup') {
 		// registerModule.defaultCommand(message.guildId, globalCommands.map(command => command.toJSON()))
     registerModule.defaultCommand(message.guildId, globalCommands)
 		return message.reply('Setup done');
 	}
+	message.consoleChannel = await musicConsoleModule.checkConsoleChannel(message.guild)
+	if (message.channelID == message.consoleChannel.id) {
+		// song request!!!
+	}
+
 	// if (message.content == '!fetch') {
 	// 	let serverData = serverDB.get(message.guildId)
 	// 	if (!serverData) {
@@ -78,6 +86,7 @@ client.on('interactionCreate', async interaction => {
 	if (!guildID) return await interaction.reply('For server only')
 	console.log(commandName)
 	await interaction.deferReply()
+	interaction.consoleChannel = await musicConsoleModule.checkConsoleChannel(interaction.guild)
 	// console.log(stickersModule.globalCommands)
   if (await router.sticker.isSticker(guildID, commandName) || stickersModule.globalCommands.some(command => command.name == commandName)) {
     return await router.sticker(interaction)

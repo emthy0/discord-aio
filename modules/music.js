@@ -5,6 +5,7 @@ console.log(generateDependencyReport());
 // const ytdl = require('ytdl-core');
 const ytPlayer = require('play-dl')
 const ytsearch = require('youtube-search')
+const { updateQueue } = require('./music-console')
 const {
   joinVoiceChannel,
   StreamType,
@@ -40,6 +41,8 @@ const timeout = {};
 //     return message.channel.send('หนูไม่มีสิทธ์พูดอะ');
 //   }
 // })
+
+module.exports.currentQueue = currentQueue = (guildId) => queue.get(guildId);
 
 module.exports.init = async (interaction) => {
   console.log(interaction)
@@ -97,51 +100,57 @@ module.exports.skip = async (interaction) => {
   const guildID = interaction.guildId
   const serverQueue = queue.get(guildID)
   if (!serverQueue) return await temporaryReply(interaction, 'No song to skip to');
-  serverQueue.audioQueue.shift();
+  if (serverQueue.playing) serverQueue.player.stop()
+  // serverQueue.audioQueue.shift();
   if (serverQueue.audioQueue.length === 0) return await temporaryReply(interaction, 'No song to skip to');
   play(serverQueue)
-  return await endInteraction(interaction);
+  await endInteraction(interaction);
+  return await updateQueue(interaction, currentQueue(interaction.guildId))
 }
 
 module.exports.stop = async (interaction) => {
   const guildID = interaction.guildId
   const serverQueue = queue.get(guildID)
   if (!serverQueue) return await temporaryReply(interaction, 'No song playing');
-  serverQueue.audioQueue.shift();
-  play(serverQueue)
-  serverQueue.player.pause();
+  if (serverQueue.player) serverQueue.player.stop()
+  // serverQueue.audioQueue.shift();
+  // play(serverQueue)
+  // serverQueue.player.pause();
+  await clearQueue(guildID)
   if (timeout[guildID]) clearTimeout(timeout[guildID]);
   timeout[guildID] = setTimeout(() => {
     leaveChannel(guildID);
   }, 10 * 60 * 1000);
-  return await endInteraction(interaction);
+  await endInteraction(interaction);
+  return await updateQueue(interaction, currentQueue(interaction.guildId))
 }
 
-module.exports.clearQueue = async (guildID) => {
+module.exports.clearQueue = clearQueue = async (guildID) => {
   console.log('Clearing queue for ' + guildID);
   const serverQueue = queue.get(guildID)
+  await updateQueue(serverQueue.voiceChannel, serverQueue)
   if (serverQueue) {
     if (serverQueue.player) {
       serverQueue.player.stop();
     }
-    queue.delete(guildID);
-    leaveChannel(guildID)
+    queue.delete(guildID);   
   }
 }
 
 async function temporaryReply(interaction, text='...') {
-  if (!interaction.replied) {
+  if (!interaction.replied && !interaction.deferred) {
     await interaction.reply(text)
   } else interaction.editReply(text)
-  setTimeout(async () => { await interaction.deleteReply()},5000)
+  setTimeout(async () => { await interaction.deleteReply().catch(() => {});},5000)
 }
 
 async function endInteraction(interaction) {
-  if (!interaction.replied) {
+  console.log('fdf',interaction.deferred)
+  if (!interaction.deferred) {
     await interaction.deferReply()
     
   }
-  return await interaction.deleteReply()
+  return await interaction.deleteReply().catch(() => {});
 }
 
 async function execute(interaction, serverQueue) {
@@ -200,9 +209,13 @@ async function execute(interaction, serverQueue) {
     console.log('Created new Server queue.');
     await constuctPlayer(serverQueue);
   }
-
+  audioData = {
+    url: songInfo.video_details.url,
+    title: songInfo.video_details.title,
+    resource: audioResource,
+  }
   console.log('Adding audio to queue.');
-  serverQueue.audioQueue.push(audioResource);
+  serverQueue.audioQueue.push(audioData);
   // console.log('sq',serverQueue)
   play(serverQueue);
 }
@@ -229,8 +242,9 @@ async function constuctPlayer(serverQueue) {
 async function play(serverQueue) {
   if (!serverQueue) return;
   console.log('Getting audio');
-  const audioResource = serverQueue.audioQueue[0];
+  const audioResource = serverQueue.audioQueue[0].resource;
   const gid = serverQueue.gid;
+  await updateQueue(serverQueue.voiceChannel, currentQueue(gid))
   if (!audioResource) {
     console.log('No audio resource');
     serverQueue.playing = false;
