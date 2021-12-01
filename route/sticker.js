@@ -1,3 +1,4 @@
+const { SlashCommandBuilder } = require('@discordjs/builders');
 const {checkPermissions, updateServerStickerDB, generateGalleryToken, getServerCache, toSnakeCase} = require('../modules/stickers')
 const registerModule = require('../modules/register')
 module.exports = async function (interaction) {
@@ -84,3 +85,41 @@ module.exports.isSticker = async (guildID, stickerName) => {
   const {serverSticker} = await getServerCache(guildID)
 	return serverSticker.some(sticker => sticker.stickerName == stickerName)
 }
+
+
+module.exports.globalCommands = [
+	new SlashCommandBuilder().setName('add_sticker').setDescription('ก็แอดstickerไง')
+    .addStringOption(option =>
+      option.setName('sticker_name')
+        .setDescription('Copy link from sticker message')
+        .setRequired(true)
+      )
+    .addStringOption(option =>
+      option.setName('message_url')
+        .setDescription('Copy link from sticker message')
+        .setRequired(true)
+      )
+    .addStringOption(option =>
+      option.setName('sticker_description')
+        .setDescription('Description for sticker')
+        .setRequired(false)
+      ),
+  new SlashCommandBuilder().setName('edit_sticker').setDescription('แก้คำบรรยายสติกเกอร์')
+    .addStringOption(option =>
+      option.setName('sticker_name')
+        .setDescription('Copy link from sticker message')
+        .setRequired(true)
+      )
+    .addStringOption(option =>
+      option.setName('sticker_description')
+        .setDescription('Description for sticker')
+        .setRequired(true)
+      ),
+  new SlashCommandBuilder().setName('check_perm').setDescription('ชื่อก็บอกอยู่แหกตาบ้าง'),
+	new SlashCommandBuilder().setName('list_sticker').setDescription('ชื่อก็บอกอยู่แหกตาบ้าง'),
+  new SlashCommandBuilder().setName('fetch_sticker').setDescription('ชื่อก็บอกอยู่แหกตาบ้าง'),
+	new SlashCommandBuilder().setName('delete_sticker').setDescription('ลบมึงอะ').addStringOption(option =>
+		option.setName('sticker_name')
+			.setDescription('Sticker name to delete')
+			.setRequired(true))
+].map(command => command.toJSON())

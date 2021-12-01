@@ -1,7 +1,7 @@
 const schema = require('../database/schema')
 // const {serverRedisClient, tokenRedisClient} = require('../database/redis')
 const redisClient = require('../database/redis')
-const { SlashCommandBuilder } = require('@discordjs/builders');
+// const { SlashCommandBuilder } = require('@discordjs/builders');
 const serverDB = new Map()
 // const multi = redisClient.multi()
 
@@ -57,39 +57,39 @@ module.exports.generateGalleryToken = async (guildID) => {
   return token;
 }
 
-module.exports.globalCommands = [
-	new SlashCommandBuilder().setName('add_sticker').setDescription('ก็แอดstickerไง')
-    .addStringOption(option =>
-      option.setName('sticker_name')
-        .setDescription('Copy link from sticker message')
-        .setRequired(true)
-      )
-    .addStringOption(option =>
-      option.setName('message_url')
-        .setDescription('Copy link from sticker message')
-        .setRequired(true)
-      )
-    .addStringOption(option =>
-      option.setName('sticker_description')
-        .setDescription('Description for sticker')
-        .setRequired(false)
-      ),
-  new SlashCommandBuilder().setName('edit_sticker').setDescription('แก้คำบรรยายสติกเกอร์')
-    .addStringOption(option =>
-      option.setName('sticker_name')
-        .setDescription('Copy link from sticker message')
-        .setRequired(true)
-      )
-    .addStringOption(option =>
-      option.setName('sticker_description')
-        .setDescription('Description for sticker')
-        .setRequired(true)
-      ),
-  new SlashCommandBuilder().setName('check_perm').setDescription('ชื่อก็บอกอยู่แหกตาบ้าง'),
-	new SlashCommandBuilder().setName('list_sticker').setDescription('ชื่อก็บอกอยู่แหกตาบ้าง'),
-  new SlashCommandBuilder().setName('fetch_sticker').setDescription('ชื่อก็บอกอยู่แหกตาบ้าง'),
-	new SlashCommandBuilder().setName('delete_sticker').setDescription('ลบมึงอะ').addStringOption(option =>
-		option.setName('sticker_name')
-			.setDescription('Sticker name to delete')
-			.setRequired(true))
-].map(command => command.toJSON())
+// module.exports.globalCommands = [
+// 	new SlashCommandBuilder().setName('add_sticker').setDescription('ก็แอดstickerไง')
+//     .addStringOption(option =>
+//       option.setName('sticker_name')
+//         .setDescription('Copy link from sticker message')
+//         .setRequired(true)
+//       )
+//     .addStringOption(option =>
+//       option.setName('message_url')
+//         .setDescription('Copy link from sticker message')
+//         .setRequired(true)
+//       )
+//     .addStringOption(option =>
+//       option.setName('sticker_description')
+//         .setDescription('Description for sticker')
+//         .setRequired(false)
+//       ),
+//   new SlashCommandBuilder().setName('edit_sticker').setDescription('แก้คำบรรยายสติกเกอร์')
+//     .addStringOption(option =>
+//       option.setName('sticker_name')
+//         .setDescription('Copy link from sticker message')
+//         .setRequired(true)
+//       )
+//     .addStringOption(option =>
+//       option.setName('sticker_description')
+//         .setDescription('Description for sticker')
+//         .setRequired(true)
+//       ),
+//   new SlashCommandBuilder().setName('check_perm').setDescription('ชื่อก็บอกอยู่แหกตาบ้าง'),
+// 	new SlashCommandBuilder().setName('list_sticker').setDescription('ชื่อก็บอกอยู่แหกตาบ้าง'),
+//   new SlashCommandBuilder().setName('fetch_sticker').setDescription('ชื่อก็บอกอยู่แหกตาบ้าง'),
+// 	new SlashCommandBuilder().setName('delete_sticker').setDescription('ลบมึงอะ').addStringOption(option =>
+// 		option.setName('sticker_name')
+// 			.setDescription('Sticker name to delete')
+// 			.setRequired(true))
+// ].map(command => command.toJSON())

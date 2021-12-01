@@ -1,3 +1,4 @@
+const { SlashCommandBuilder } = require('@discordjs/builders');
 const { init, pause, resume, skip, stop, leaveChannel, clearQueue, currentQueue } = require('../modules/music')
 const { updateQueue } = require('../modules/music-console')
 module.exports = async (interaction) => {
@@ -28,3 +29,25 @@ module.exports = async (interaction) => {
 
 module.exports.clearQueue = clearQueue
 module.exports.leaveChannel = leaveChannel
+
+module.exports.globalCommands = [
+	new SlashCommandBuilder().setName('play').setDescription('เล่นเพลง')
+    .addStringOption(option =>
+      option.setName('song')
+        .setDescription('ชื่อเพลง / ลิงก์')
+        .setRequired(true)
+      ),
+  new SlashCommandBuilder().setName('unqueue').setDescription('ลบเพลงออกจากคิว')
+    .addStringOption(option =>
+      option.setName('id')
+        .setDescription('id ของเพลงที่จะลบ')
+        .setRequired(true)
+      ),
+  new SlashCommandBuilder().setName('queue').setDescription('แสดงคิวเพลง'),
+	new SlashCommandBuilder().setName('pause').setDescription('หยุดเพลง'),
+  new SlashCommandBuilder().setName('resume').setDescription('เล่นเพลงต่อ'),
+  new SlashCommandBuilder().setName('stop').setDescription('หยุดเพลงและลบเพลงปัจจุบันออกจากคิว'),
+  new SlashCommandBuilder().setName('leave').setDescription('ออกจากห้อง'),
+  new SlashCommandBuilder().setName('skip').setDescription('ไปเพลงต่อไป'),
+  new SlashCommandBuilder().setName('clear').setDescription('เคลียคิว'),
+].map(command => command.toJSON())

@@ -16,7 +16,8 @@ const router = require('./route')
 const musicModule = require('./modules/music')
 const musicConsoleModule = require('./modules/music-console')
 const stickersModule = require('./modules/stickers')
-const globalCommands = stickersModule.globalCommands.concat(musicModule.globalCommands)
+// const activityRoute = require('./route/activity')
+const globalCommands = router.sticker.globalCommands.concat(router.music.globalCommands).concat(router.activity.globalCommands)
 
 
 mongoose.connect(process.env.databaseSRV, {
@@ -87,14 +88,18 @@ client.on('interactionCreate', async interaction => {
 	console.log(commandName)
 	await interaction.deferReply()
 	interaction.consoleChannel = await musicConsoleModule.checkConsoleChannel(interaction.guild)
-	// console.log(stickersModule.globalCommands)
-  if (await router.sticker.isSticker(guildID, commandName) || stickersModule.globalCommands.some(command => command.name == commandName)) {
+	console.log(interaction.options)
+  if (await router.sticker.isSticker(guildID, commandName) || router.sticker.globalCommands.some(command => command.name == commandName)) {
     return await router.sticker(interaction)
   }
 
-  if (musicModule.globalCommands.some(command => command.name == commandName)) {
+  if (router.music.globalCommands.some(command => command.name == commandName)) {
     return await router.music(interaction)
   }
+
+	if (commandName == 'activity') {
+		router.activity(interaction)
+	}
 	
 });
 
