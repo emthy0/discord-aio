@@ -115,10 +115,10 @@ module.exports.globalCommands = [
         .setDescription('Description for sticker')
         .setRequired(true)
       ),
-  new SlashCommandBuilder().setName('check_perm').setDescription('ชื่อก็บอกอยู่แหกตาบ้าง'),
-	new SlashCommandBuilder().setName('list_sticker').setDescription('ชื่อก็บอกอยู่แหกตาบ้าง'),
-  new SlashCommandBuilder().setName('fetch_sticker').setDescription('ชื่อก็บอกอยู่แหกตาบ้าง'),
-	new SlashCommandBuilder().setName('delete_sticker').setDescription('ลบมึงอะ').addStringOption(option =>
+  new SlashCommandBuilder().setName('check_perm').setDescription('---'),
+	new SlashCommandBuilder().setName('list_sticker').setDescription('เปิดGallery'),
+  new SlashCommandBuilder().setName('fetch_sticker').setDescription('อัพเดทคำสั่ง'),
+	new SlashCommandBuilder().setName('delete_sticker').setDescription('ลบสติกเกอร์').addStringOption(option =>
 		option.setName('sticker_name')
 			.setDescription('Sticker name to delete')
 			.setRequired(true))
