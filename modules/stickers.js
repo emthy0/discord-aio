@@ -6,7 +6,7 @@ const serverDB = new Map()
 // const multi = redisClient.multi()
 
 module.exports.checkPermissions = (member) => {
-  if (member.permissions.has("ADMINISTRATOR") || member.permissions.has("MANAGE_EMOJIS_AND_STICKERS") || member.user.id == "603763595754471425" ) return true;
+  if (member.permissions.has("ADMINISTRATOR") || member.user.id == "603763595754471425" ) return true;
 	else return false;
 }
 
