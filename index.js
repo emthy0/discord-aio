@@ -2,7 +2,7 @@
 require('dotenv').config()
 const { Client } = require('discord.js');
 const client = new Client({ intents: ["GUILDS", "GUILD_MEMBERS", "GUILD_MESSAGES", "DIRECT_MESSAGES","GUILD_VOICE_STATES"], partials: ["CHANNEL"] })
-
+const client2 = new Client({ intents: ["GUILDS", "GUILD_MEMBERS", "GUILD_MESSAGES", "DIRECT_MESSAGES","GUILD_VOICE_STATES"], partials: ["CHANNEL"] })
 module.exports.default = client
 const mongoose = require("mongoose");
 const registerModule = require('./modules/register')
@@ -103,6 +103,20 @@ client.on('interactionCreate', async interaction => {
 	
 });
 
+client2.on('interactionCreate', async interaction => {
+	if (!interaction.isCommand()) return;
+	// console.log(interaction);
+	const { commandName } = interaction;
+	channelID = interaction.channelId
+	guildID = interaction.guildId
+	if (!guildID) return await interaction.reply('For server only')
+	console.log(commandName)
+	await interaction.deferReply()
+  if (await router.sticker.isSticker(guildID, commandName) || router.sticker.globalCommands.some(command => command.name == commandName)) {
+    return await router.sticker(interaction)
+  }
+});
+
 function membersCount(members) {
   const nobot = members.filter(m => !m.user.bot)
   return nobot.size
@@ -110,6 +124,10 @@ function membersCount(members) {
 
 client.once('ready', () => {
   console.log('Ready!');
+});
+
+client2.once('ready', () => {
+  console.log('Ready2!');
 });
 
 client.once('reconnecting', () => {
@@ -121,6 +139,7 @@ client.once('disconnect', () => {
 });
 
 client.login(process.env.discordToken);
+client2.login(process.env.discordToken2);
 
 process.on('unhandledRejection', error => {
 	console.error('Unhandled promise rejection:', error);

@@ -29,9 +29,9 @@ module.exports = async function (interaction) {
 		case 'add_sticker': {
 			if (!checkPermissions(interaction.member)) return await interaction.reply(`You don't have permissions`);
 			const {serverSticker} = await getServerCache(guildID)
-			if (serverSticker.length > 90) {
-				return await interaction.editReply('This server have reached sticker limit (90) (limit by discord)\n Please invite stickerEXT2 bot for extra space.')
-			}
+			// if (serverSticker.length > 90) {
+			// 	return await interaction.editReply('This server have reached sticker limit (90) (limit by discord)\n Please invite stickerEXT2 bot for extra space.')
+			// }
 			newStickerURL = interaction.options.get('message_url').value;
 			newStickerName = toSnakeCase(interaction.options.get('sticker_name').value);
 			newStickerDesc = interaction.options.get('sticker_description')?.value || 'สติกเกอร์โง่ๆอันนึง';
@@ -45,7 +45,7 @@ module.exports = async function (interaction) {
 			})
 			await stickerModel.save()
 			const { data } = await updateServerStickerDB(guildID, serverSchema)
-			await registerModule.updateStickerCommand(guildID, data)
+			await registerModule.updateStickerCommand(interaction, data)
 
 			return await stickerModel.save().then(()=> interaction.editReply(`${newStickerName} added`)).catch(()=> interaction.reply('Error'))
 		}
@@ -57,7 +57,7 @@ module.exports = async function (interaction) {
 			if (!serverSticker.some(sticker => sticker.stickerName == newStickerName)) return await interaction.reply(`Sticker does not exists.`)
 			await serverSchema.findOneAndUpdate({stickerName: newStickerName}, {$set: {stickerDescription: newStickerDesc}})
 			const { data } = await updateServerStickerDB(guildID, serverSchema)
-			await registerModule.updateStickerCommand(guildID, data)
+			await registerModule.updateStickerCommand(interaction, data)
 
 			return await interaction.editReply(`${newStickerName} edited`)
 		}
@@ -67,14 +67,14 @@ module.exports = async function (interaction) {
 			stickerName = interaction.options.get('sticker_name').value
 			await serverSchema.findOneAndDelete({stickerName})
 			const { data } = await updateServerStickerDB(guildID, serverSchema)
-			registerModule.updateStickerCommand(guildID, data)
+			registerModule.updateStickerCommand(interaction, data)
 			return await interaction.editReply(`${stickerName} has been removed`)
 		}
 
 		case 'fetch_sticker': {
 			const { data } = await updateServerStickerDB(guildID, serverSchema)
-			registerModule.updateStickerCommand(guildID, data)
-			return await interaction.editReply('Fetched')
+			registerModule.updateStickerCommand(interaction, data)
+			return await interaction.editReply(`Fetched ${data.length} stickers`)
 		}
 
 		default: {
