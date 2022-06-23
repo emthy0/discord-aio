@@ -46,14 +46,18 @@ module.exports.updateStickerCommand = async (interaction, data) => {
 }
 
 module.exports.updateStickerCommand1 = (guildId, data) => {
-  const updatedCommands = data.map(sticker => new SlashCommandBuilder().setName(sticker.stickerName).setDescription(sticker.stickerDescription || 'สติกเกอร์โง่ๆอันนึง').toJSON())
+  const updatedCommands = data.map(sticker => new SlashCommandBuilder().setName(sticker.stickerName).setDescription(sticker.stickerDescription || 'สติกเกอร์โง่ๆอันนึง').addBooleanOption(option => option.setName('markAsSpoiled')
+  .setDescription('Should this be sensor')
+  .setRequired(false)).toJSON())
   rest.put(Routes.applicationGuildCommands(discord_clientID, guildId), { body: updatedCommands })
     .then(() => console.log('Successfully update application StickerCommand.'))
     .catch(console.error);
 }
 
 module.exports.updateStickerCommand2 = (guildId, data) => {
-  const updatedCommands = data.map(sticker => new SlashCommandBuilder().setName(sticker.stickerName).setDescription(sticker.stickerDescription || 'สติกเกอร์โง่ๆอันนึง').toJSON())
+  const updatedCommands = data.map(sticker => new SlashCommandBuilder().setName(sticker.stickerName).setDescription(sticker.stickerDescription || 'สติกเกอร์โง่ๆอันนึง').addBooleanOption(option => option.setName('markAsSpoiled')
+  .setDescription('Should this be sensor')
+  .setRequired(false)).toJSON())
   rest2.put(Routes.applicationGuildCommands(discord_clientID2, guildId), { body: updatedCommands })
     .then(() => console.log('Successfully update application StickerCommand.'))
     .catch(console.error);
