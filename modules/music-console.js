@@ -14,8 +14,7 @@ module.exports.checkConsoleChannel = checkConsoleChannel = async (guild) => {
       topic: topic,
       position: 0,
       reason: 'AIO Paimon Console'
-    })
-    consoleChannel.send('Queue list:')
+    }).then((c)=> c.send('Queue list:')).catch((err) => console.log(err))
   }
   return consoleChannel;
 }
