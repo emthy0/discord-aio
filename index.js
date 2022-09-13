@@ -36,7 +36,7 @@ client.on('messageCreate', async (message) => {
     registerModule.defaultCommand(message.guildId, globalCommands)
 		return message.reply('Setup done');
 	}
-	message.consoleChannel = await musicConsoleModule.checkConsoleChannel(message.guild)
+	message.consoleChannel = await musicConsoleModule.checkConsoleChannel(message.guild).catch((err) => console.log(err))
 	if (message.channelID == message.consoleChannel.id) {
 		// song request!!!
 	}
@@ -87,7 +87,7 @@ client.on('interactionCreate', async interaction => {
 	if (!guildID) return await interaction.reply('For server only')
 	console.log(commandName)
 	await interaction.deferReply()
-	interaction.consoleChannel = await musicConsoleModule.checkConsoleChannel(interaction.guild)
+	interaction.consoleChannel = await musicConsoleModule.checkConsoleChannel(interaction.guild).catch((err) => console.log(err))
 	console.log(interaction.options)
   if (await router.sticker.isSticker(guildID, commandName) || router.sticker.globalCommands.some(command => command.name == commandName)) {
     return await router.sticker(interaction)
