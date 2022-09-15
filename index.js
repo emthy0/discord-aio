@@ -55,7 +55,7 @@ client.on('messageCreate', async (message) => {
 client.on('voiceStateUpdate', async (oldVoiceState, voiceState) => {
 	// console.log('voiceStateUpdate', voiceState)
 	if (voiceState.channelId == null && voiceState.member.user == client.user) {
-		return await router.music.clearQueue(voiceState.guild.id)
+		return await router.music.clearQueue(voiceState.guild.id).catch((err) => console.log(err))
 	}
 
 	if (voiceState.channelId == null) return

@@ -21,7 +21,7 @@ module.exports.checkConsoleChannel = checkConsoleChannel = async (guild) => {
 
 module.exports.updateQueue = async (interaction, serverQueue) => { 
   const guild = interaction.guild;
-  const consoleChannel = await checkConsoleChannel(guild)
+  const consoleChannel = await checkConsoleChannel(guild).catch((err) => console.log(err))
   var messageList = await consoleChannel.messages.fetch()
   const unwantedMessage = messageList.filter(message => {
     if (message.author != interaction.client.user) return true;

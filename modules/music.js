@@ -105,7 +105,7 @@ module.exports.skip = async (interaction) => {
   if (serverQueue.audioQueue.length === 0) return await temporaryReply(interaction, 'No song to skip to');
   play(serverQueue)
   await endInteraction(interaction);
-  return await updateQueue(interaction, currentQueue(interaction.guildId))
+  return await updateQueue(interaction, currentQueue(interaction.guildId)).catch((err) => console.log(err))
 }
 
 module.exports.stop = async (interaction) => {
@@ -122,7 +122,7 @@ module.exports.stop = async (interaction) => {
     leaveChannel(guildID);
   }, 10 * 60 * 1000);
   await endInteraction(interaction);
-  return await updateQueue(interaction, currentQueue(interaction.guildId))
+  return await updateQueue(interaction, currentQueue(interaction.guildId)).catch((err) => console.log(err))
 }
 
 module.exports.clearQueue = clearQueue = async (guildID) => {
