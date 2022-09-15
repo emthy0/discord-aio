@@ -22,15 +22,20 @@ module.exports.checkConsoleChannel = checkConsoleChannel = async (guild) => {
 module.exports.updateQueue = async (interaction, serverQueue) => { 
   const guild = interaction.guild;
   const consoleChannel = await checkConsoleChannel(guild)
-  const messageList = await consoleChannel.messages.fetch()
+  var messageList = await consoleChannel.messages.fetch()
   const unwantedMessage = messageList.filter(message => {
     if (message.author != interaction.client.user) return true;
     if (message.type == 'APPLICATION_COMMAND') return true;
     return false;
   })
-  const grandMessage = messageList.find(message => message.author == interaction.client.user && message.type == 'DEFAULT')
+  
   console.log(unwantedMessage);
-  await consoleChannel.bulkDelete(unwantedMessage)
+  await consoleChannel.bulkDelete(unwantedMessage).catch(async()=>{
+    consoleChannel.delete("Clear noob's message")
+    await checkConsoleChannel(guild)
+  })
+  messageList = await consoleChannel.messages.fetch()
+  const grandMessage = messageList.find(message => message.author == interaction.client.user && message.type == 'DEFAULT')
   console.log('ddd',grandMessage);
   if (!serverQueue) {
     return grandMessage.edit('Queue list:')
