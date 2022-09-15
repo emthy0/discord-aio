@@ -244,7 +244,7 @@ async function play(serverQueue) {
   console.log('Getting audio');
   const audioResource = serverQueue.audioQueue[0].resource;
   const gid = serverQueue.gid;
-  await updateQueue(serverQueue.voiceChannel, currentQueue(gid))
+  await updateQueue(serverQueue.voiceChannel, currentQueue(gid)).catch((err) => console.log(err))
   if (!audioResource) {
     console.log('No audio resource');
     serverQueue.playing = false;

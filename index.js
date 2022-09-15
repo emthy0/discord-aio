@@ -62,7 +62,7 @@ client.on('voiceStateUpdate', async (oldVoiceState, voiceState) => {
 
 	if (voiceState.member.user == client.user) {
     if (!voiceState.serverDeaf) {
-      voiceState.setDeaf(true)
+      voiceState.setDeaf(true).catch((err) => console.log(err))
     }
 
 
