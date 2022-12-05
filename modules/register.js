@@ -85,7 +85,7 @@ module.exports.updateStickerCommand2 = (guildId, data) => {
       .setDescription(sticker.stickerDescription || "สติกเกอร์โง่ๆอันนึง")
       .addBooleanOption((option) =>
         option
-          .setName("markAsSpoiled")
+          .setName("mark_as_spoiled")
           .setDescription("Should this be sensor")
           .setRequired(false)
       )
