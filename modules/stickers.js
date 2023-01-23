@@ -1,60 +1,71 @@
-const schema = require('../database/schema')
+const schema = require("../database/schema")
 // const {serverRedisClient, tokenRedisClient} = require('../database/redis')
-const redisClient = require('../database/redis')
+// const redisClient = require('../database/redis')
 // const { SlashCommandBuilder } = require('@discordjs/builders');
 const serverDB = new Map()
+const serverToken = new Map()
 // const multi = redisClient.multi()
 
 module.exports.checkPermissions = (member) => {
-  if (member.permissions.has("ADMINISTRATOR") || member.user.id == "603763595754471425" ) return true;
-	else return false;
+  if (
+    member.permissions.has("ADMINISTRATOR") ||
+    member.user.id == "603763595754471425"
+  )
+    return true
+  else return false
 }
 
-module.exports.toSnakeCase = str => str && str.match(/[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g)
-    .map(x => x.toLowerCase())
-    .join('_');
+module.exports.toSnakeCase = (str) =>
+  str &&
+  str
+    .match(/[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g)
+    .map((x) => x.toLowerCase())
+    .join("_")
 
 module.exports.getServerCache = async (guildID) => {
   let serverData = serverDB.get(guildID)
-	if (!serverData) {
-		serverData =  await newServerStickerDB(guildID)
-	}
-	serverSticker = serverData.data
-	serverSchema = serverData.schema;
-  return {serverSticker, serverSchema}
+  if (!serverData) {
+    serverData = await newServerStickerDB(guildID)
+  }
+  serverSticker = serverData.data
+  serverSchema = serverData.schema
+  return { serverSticker, serverSchema }
 }
 
 module.exports.newServerStickerDB = newServerStickerDB = async (guildID) => {
-	serverSchema = schema.guildStickerDB(guildID)
-	serverSticker = await serverSchema.find()
-	serverData = {
-		schema: serverSchema,
-		data: serverSticker
-	}
-	serverDB.set(guildID, serverData);
-	return serverData;
+  serverSchema = schema.guildStickerDB(guildID)
+  serverSticker = await serverSchema.find()
+  serverData = {
+    schema: serverSchema,
+    data: serverSticker,
+  }
+  serverDB.set(guildID, serverData)
+  return serverData
 }
 
 module.exports.updateServerStickerDB = async (guildID, serverSchema) => {
-	serverSticker = await serverSchema.find()
-	serverData = {
-		schema: serverSchema,
-		data: serverSticker
-	}
-	serverDB.set(guildID, serverData);
-	return serverData;
+  serverSticker = await serverSchema.find()
+  serverData = {
+    schema: serverSchema,
+    data: serverSticker,
+  }
+  serverDB.set(guildID, serverData)
+  return serverData
 }
 
-const genToken = function() {
-  return Math.random().toString(36).substr(2) + Math.random().toString(36).substr(2);// remove `0.`
-};
+const genToken = function () {
+  return (
+    Math.random().toString(36).substr(2) + Math.random().toString(36).substr(2)
+  ) // remove `0.`
+}
 
 module.exports.generateGalleryToken = async (guildID) => {
-  const token = genToken();
-  const cb = (err ,log) => { console.log(err); console.log(log)}
-  redisClient.set(token, guildID, 'EX', 600, cb)
+  const token = genToken()
+  // const cb = (err ,log) => { console.log(err); console.log(log)}
+  // redisClient.set(token, guildID, 'EX', 600, cb)
+  serverToken.set(guildID, token)
   console.log(token)
-  return token;
+  return token
 }
 
 // module.exports.globalCommands = [
