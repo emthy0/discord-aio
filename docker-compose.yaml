@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+
+  discord-aio:
+    restart: always
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    image: discord-aio
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 250M
