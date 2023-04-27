@@ -8,18 +8,18 @@ const CONF = {
   password: process.env.REDIS_PASSWORD,
   db: 0,
 }
-const {createClient} = require('redis')
-const redisClient = createClient(CONF)
-// console.log(CONF)
-redisClient.on('connect', function () {
-  console.log('redis connected')
-  console.log(`connected ${redisClient.connected}`)
-})
+// const {createClient} = require('redis')
+// const redisClient = createClient(CONF)
+// // console.log(CONF)
+// redisClient.on('connect', function () {
+//   console.log('redis connected')
+//   console.log(`connected ${redisClient.connected}`)
+// })
 
-redisClient.on('error', (err) => {
-  console.log('main error')
-  console.error(err)
-})
+// redisClient.on('error', (err) => {
+//   console.log('main error')
+//   console.error(err)
+// })
 
 // redisClient.connect();
 
