@@ -136,10 +136,16 @@ client.on("interactionCreate", async (interaction) => {
     const channel = interaction.channel
     if (!channel) return await interaction.reply("No channel found")
     const summonString =
-      "นะโม ตัสสะ ภะคะวะโต อะระหะโต สัมมาสัมพุทธัสสะ" * 3 +
-      `มะอะอุ <@${member.id}>   เมตตา จะมหาราชา สัพพะเสน่หา มะมะจิตตัง ปิยังมะมะ` *
+      `========== บทอัญเชิญบูชา ==========\n` +
+      `========== ${member.displayName} ==========\n` +
+      `=================================\n` +
+      "นะโม ตัสสะ ภะคะวะโต อะระหะโต สัมมาสัมพุทธัสสะ\n".repeat(3) +
+      `มะอะอุ <@${member.id}> เมตตา จะมหาราชา สัพพะเสน่หา มะมะจิตตัง ปิยังมะมะ\n`.repeat(
         9
+      ) +
+      "\n\n\n"
     channel.send(summonString).catch((err) => console.log(err))
+    interaction.deleteReply()
   }
 })
 
