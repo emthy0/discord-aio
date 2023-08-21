@@ -139,7 +139,11 @@ client.on("interactionCreate", async (interaction) => {
       `========== บทอัญเชิญบูชา ==========\n` +
       `========== ${member.displayName} ==========\n` +
       `=================================\n` +
-      "นะโม ตัสสะ ภะคะวะโต อะระหะโต สัมมาสัมพุทธัสสะ\n".repeat(3) +
+      `นะโม ตัสสะ ภะคะวะโต อะระหะโต สัมมาสัมพุทธัสสะ ${
+        interaction.options.getString("activity")
+          ? interaction.options.getString("activity")
+          : ""
+      }\n`.repeat(3) +
       `มะอะอุ <@${member.id}> เมตตา จะมหาราชา สัพพะเสน่หา มะมะจิตตัง ปิยังมะมะ\n`.repeat(
         9
       ) +

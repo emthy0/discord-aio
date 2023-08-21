@@ -53,5 +53,8 @@ module.exports.globalCommands = [
         .setName("user")
         .setDescription("ผู้ถูกเรียกวิญญาณ")
         .setRequired(true)
+    )
+    .addStringOption((option) =>
+      option.setName("activity").setDescription("จะเล่นอะไร").setRequired(false)
     ),
 ].map((command) => command.toJSON())
