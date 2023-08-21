@@ -137,11 +137,11 @@ client.on("interactionCreate", async (interaction) => {
     if (!channel) return await interaction.reply("No channel found")
     const summonString =
       `========== บทอัญเชิญบูชา ==========\n` +
-      `========== ${member.displayName} ==========\n` +
+      `========== ${member.nickname} ==========\n` +
       `=================================\n` +
       `นะโม ตัสสะ ภะคะวะโต อะระหะโต สัมมาสัมพุทธัสสะ ${
         interaction.options.getString("activity")
-          ? interaction.options.getString("activity")
+          ? "__**" + interaction.options.getString("activity") + "**__"
           : ""
       }\n`.repeat(3) +
       `มะอะอุ <@${member.id}> เมตตา จะมหาราชา สัพพะเสน่หา มะมะจิตตัง ปิยังมะมะ\n`.repeat(
