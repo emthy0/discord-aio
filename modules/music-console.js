@@ -6,7 +6,7 @@ const topic = '⏯ Pause/Resume the song.\n' +
   '🔀 Shuffle the queue.\n'
 
 
-module.exports.checkConsoleChannel = checkConsoleChannel = async (guild) => {
+module.exports.checkConsoleChannel = checkConsoleChannel = async (bot_user, guild) => {
   let consoleChannel = guild.channels.cache.find(c => c.name === consoleChannelName);
   if (!consoleChannel) {
     consoleChannel = await guild.channels.create(consoleChannelName, {
@@ -15,13 +15,21 @@ module.exports.checkConsoleChannel = checkConsoleChannel = async (guild) => {
       position: 0,
       reason: 'AIO Paimon Console'
     }).then((c)=> c.send('Queue list:')).catch((err) => console.log(err))
+  } else if (consoleChannel.topic != topic) {
+    consoleChannel.setTopic(topic)
+  } 
+  const messageList = await consoleChannel.messages.fetch()
+  const grandMessage = messageList.find(message => message.author == bot_user && message.type == 'DEFAULT')
+  if (!grandMessage) {
+    consoleChannel.send('Queue list:')
   }
-  return consoleChannel;
+  return {consoleChannel, grandMessage};
 }
 
 module.exports.updateQueue = async (interaction, serverQueue) => { 
   const guild = interaction.guild;
-  const consoleChannel = await checkConsoleChannel(guild).catch((err) => console.log(err))
+  const {consoleChannel, grandMessage }= await checkConsoleChannel(interaction.client.user, guild).catch((err) => console.log(err))
+  if (!consoleChannel) return console.log('No console channel');
   var messageList = await consoleChannel.messages.fetch()
   const unwantedMessage = messageList.filter(message => {
     if (message.author != interaction.client.user) return true;
@@ -32,12 +40,12 @@ module.exports.updateQueue = async (interaction, serverQueue) => {
   console.log(unwantedMessage);
   await consoleChannel.bulkDelete(unwantedMessage).catch(async()=>{
     consoleChannel.delete("Clear noob's message")
-    await checkConsoleChannel(guild)
+    await checkConsoleChannel(interaction.client.user, guild)
   })
-  messageList = await consoleChannel.messages.fetch()
-  const grandMessage = messageList.find(message => message.author == interaction.client.user && message.type == 'DEFAULT')
+  // messageList = await consoleChannel.messages.fetch()
+  // const grandMessage = messageList.find(message => message.author == interaction.client.user && message.type == 'DEFAULT')
   console.log('ddd',grandMessage);
-  if (!serverQueue) {
+  if (!serverQueue && grandMessage) {
     return grandMessage.edit('Queue list:')
   }
   const queue = serverQueue.audioQueue

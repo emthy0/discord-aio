@@ -161,19 +161,31 @@ async function execute(interaction, serverQueue) {
   try {
     songInfo = await ytPlayer.video_info(songName);
   } catch (err) {
+    try {
+    console.log('Search song', err)
     const videos = await ytsearch(songName, {
       maxResults: 10,
       key: process.env.youtubeApiKey
     })
     // console.log('Song',videos.results.filter(v => v.kind == 'youtube#video'))
+   
+    // array_result = Array.from(videos.results)
+    // console.log('Song',typeof array_result)
     const vdoResult = videos.results.filter(v => v.kind == 'youtube#video')
     if (vdoResult.length == 0) {
       await temporaryReply(interaction, 'No video found.')
       return
     }
+    console.log('Song',vdoResult[0].link)
     songInfo = await ytPlayer.video_info(vdoResult[0].link);
   }
-  // console.log(songInfo);
+  catch (err) {
+    console.log('Search song', err)
+    await temporaryReply(interaction, 'No video found.')
+    return
+  } 
+}
+  console.log("song info",songInfo);
   const voiceURL = songInfo.video_details.url;
   console.log(voiceURL);
   const text = {
