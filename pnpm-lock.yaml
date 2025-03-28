@@ -20,12 +20,18 @@ dependencies:
   discord-api-types:
     specifier: ^0.24.0
     version: 0.24.0
+  discord-interactions:
+    specifier: ^4.1.1
+    version: 4.1.1
   discord.js:
     specifier: ^13.3.1
     version: 13.12.0
   dotenv:
     specifier: ^10.0.0
     version: 10.0.0
+  itty-router:
+    specifier: ^5.0.18
+    version: 5.0.18
   libsodium-wrappers:
     specifier: ^0.7.9
     version: 0.7.10
@@ -1285,6 +1291,11 @@ packages:
     resolution: {integrity: sha512-bz/NDyG0KBo/tY14vSkrwQ/n3HKPf87a0WFW/1M9+tXYK+vp5Z5EksawfCWo2zkAc6o7CClc0eff1Pjrqznlwg==}
     dev: false
 
+  /discord-interactions@4.1.1:
+    resolution: {integrity: sha512-dCrdJFSHQrEHXB8tk+LpIhAL7/+/UXCFDzooYmB6jj7b/zuhdbETpcZXLYQpSfcSRpF5wjmnu1XwuHlvdF1KpQ==}
+    engines: {node: '>=18.4.0'}
+    dev: false
+
   /discord.js@13.12.0:
     resolution: {integrity: sha512-K5qhREsYcTHkEqt7+7LcSoXTeQYZpI+SQRs9ei/FhbhUpirmjqFtN99P8W2mrKUyhhy7WXWm7rnna0AooKtIpw==}
     engines: {node: '>=16.6.0', npm: '>=7.0.0'}
@@ -1499,6 +1510,10 @@ packages:
   /is-obj@2.0.0:
     resolution: {integrity: sha512-drqDG3cbczxxEJRoOXcOjtdp1J/lyp1mNn0xaznRs8+muBhgQcrnbspox5X5fOw0HnMnbfDzvnEMEtqDEJEo8w==}
     engines: {node: '>=8'}
+    dev: false
+
+  /itty-router@5.0.18:
+    resolution: {integrity: sha512-mK3ReOt4ARAGy0V0J7uHmArG2USN2x0zprZ+u+YgmeRjXTDbaowDy3kPcsmQY6tH+uHhDgpWit9Vqmv/4rTXwA==}
     dev: false
 
   /kareem@2.4.1:
