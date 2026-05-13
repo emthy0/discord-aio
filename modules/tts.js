@@ -166,7 +166,7 @@ function playNext(serverQueue, guildId) {
   serverQueue.playing = true
 
   createTTSResource(url)
-    .then((audioResource) => {
+    .then(({ audioResource }) => {
       serverQueue.player.play(audioResource)
     })
     .catch((err) => {

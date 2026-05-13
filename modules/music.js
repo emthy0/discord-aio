@@ -152,8 +152,8 @@ module.exports.stop = async (interaction) => {
 module.exports.clearQueue = clearQueue = async (guildID) => {
   console.log("Clearing queue for " + guildID)
   const serverQueue = queue.get(guildID)
-  await updateQueue(serverQueue.voiceChannel, serverQueue)
   if (serverQueue) {
+    await updateQueue(serverQueue.voiceChannel, serverQueue)
     if (serverQueue.player) {
       serverQueue.player.stop()
     }
