@@ -1,5 +1,3 @@
-version: '3'
-
 services:
 
   discord-aio:
@@ -8,11 +6,24 @@ services:
       context: .
       dockerfile: ./Dockerfile
     image: discord-aio
+    env_file: .env
     deploy:
       resources:
         limits:
           cpus: '1'
           memory: 1G
-        reservations:
-          cpus: '0.25'
-          memory: 250M
+        # reservations:
+        #   cpus: '0.25'
+        #   memory: 250M
+
+  # discord-aio-dev:
+  #   build:
+  #     context: .
+  #     dockerfile: ./Dockerfile
+  #     target: deps
+  #   command: bun --watch src/index.ts
+  #   env_file: .env
+  #   volumes:
+  #     - ./src:/usr/src/app/src:ro
+  #   profiles:
+  #     - dev

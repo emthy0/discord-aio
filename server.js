@@ -84,7 +84,7 @@ webRouter.post("/", async (request, env) => {
         (command) => command.name == commandName
       )
     ) {
-      return await 
+      // return await 
       // return await router.sticker(interaction)
     }
 
@@ -142,7 +142,7 @@ webRouter.post("/", async (request, env) => {
   console.error("Unknown Type")
   return new JsonResponse({ error: "Unknown Type" }, { status: 400 })
 })
-router.all("*", () => new Response("Not Found.", { status: 404 }))
+// router.all("*", () => new Response("Not Found.", { status: 404 }))
 
 async function verifyDiscordRequest(request, env) {
   const signature = request.headers.get("x-signature-ed25519")

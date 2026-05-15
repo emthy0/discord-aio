@@ -1,25 +1,32 @@
 // require('dotenv').config({path:'./.env.dev'})
 require("dotenv").config()
-const { Client } = require("discord.js")
+const {
+  Client,
+  Collection,
+  Events,
+  GatewayIntentBits,
+  MessageFlags,
+  Partials,
+} = require("discord.js")
 const client = new Client({
   intents: [
-    "GUILDS",
-    "GUILD_MEMBERS",
-    "GUILD_MESSAGES",
-    "DIRECT_MESSAGES",
-    "GUILD_VOICE_STATES",
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMembers,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.DirectMessages,
+    GatewayIntentBits.GuildVoiceStates,
   ],
-  partials: ["CHANNEL"],
+  partials: [Partials.Channel],
 })
 const client2 = new Client({
   intents: [
-    "GUILDS",
-    "GUILD_MEMBERS",
-    "GUILD_MESSAGES",
-    "DIRECT_MESSAGES",
-    "GUILD_VOICE_STATES",
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMembers,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.DirectMessages,
+    GatewayIntentBits.GuildVoiceStates,
   ],
-  partials: ["CHANNEL"],
+  partials: [Partials.Channel],
 })
 module.exports.default = client
 const mongoose = require("mongoose")
@@ -39,10 +46,11 @@ const command = require("nodemon/lib/config/command")
 const globalCommands = router.sticker.globalCommands
   .concat(router.music.globalCommands)
   .concat(router.activity.globalCommands)
+  .concat(router.tts.globalCommands)
 
 mongoose.connect(process.env.databaseSRV, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
+  // useNewUrlParser: true,
+  // useUnifiedTopology: true,
 })
 
 mongoose.connection.on("error", (err) => {
@@ -54,14 +62,15 @@ client.on("messageCreate", async (message) => {
   if (message.content == "!setup") {
     // registerModule.defaultCommand(message.guildId, globalCommands.map(command => command.toJSON()))
     registerModule.defaultCommand(message.guildId, globalCommands)
-    return message.reply("Setup done")
+    message.reply("Setup done")
+    return
   }
-  message.consoleChannel = await musicConsoleModule
-    .checkConsoleChannel(message.guild)
-    .catch((err) => console.log(err))
-  if (message.channelID == message.consoleChannel.id) {
-    // song request!!!
-  }
+  // message["consoleChannel"] = await musicConsoleModule
+  //   .checkConsoleChannel(message.guild)
+  //   .catch((err) => console.log(err))
+  // if (message.channelId == message["consoleChannel"].id) {
+  //   // song request!!!
+  // }
 
   // if (message.content == '!fetch') {
   // 	let serverData = serverDB.get(message.guildId)
@@ -74,7 +83,7 @@ client.on("messageCreate", async (message) => {
   // }
 })
 
-client.on("voiceStateUpdate", async (oldVoiceState, voiceState) => {
+client.on("voiceStateUpdate", async (_, voiceState) => {
   // console.log('voiceStateUpdate', voiceState)
   if (voiceState.channelId == null && voiceState.member.user == client.user) {
     return await router.music
@@ -98,74 +107,96 @@ client.on("voiceStateUpdate", async (oldVoiceState, voiceState) => {
   }
 })
 
-client.on("interactionCreate", async (interaction) => {
-  if (!interaction.isCommand()) return
-  // console.log(interaction);
-  const { commandName } = interaction
-  channelID = interaction.channelId
-  guildID = interaction.guildId
-  if (!guildID) return await interaction.reply("For server only")
-  console.log(commandName)
-  await interaction.deferReply()
-  interaction.consoleChannel = await musicConsoleModule
-    .checkConsoleChannel(interaction.guild)
-    .catch((err) => console.log(err))
-  console.log(interaction.options)
-  if (
-    (await router.sticker.isSticker(guildID, commandName)) ||
-    router.sticker.globalCommands.some((command) => command.name == commandName)
-  ) {
-    return await router.sticker(interaction)
-  }
+client.on(Events.InteractionCreate, async (interaction) => {
+  try {
+    // await interaction.deferReply().catch(console.error)
 
-  if (
-    router.music.globalCommands.some((command) => command.name == commandName)
-  ) {
-    return await router.music(interaction)
-  }
+    if (!interaction.isCommand() || !interaction.isChatInputCommand()) return
+    // interaction.deferReply()
+    await interaction.deferReply().catch((e) => {
+      console.error(e)
+      console.log("OH timeout")
+      throw e
+    })
+    // interaction.deferReply().catch(e=>{})
+    // console.log(interaction);
+    const { commandName } = interaction
+    const channelID = interaction.channelId
+    const guildID = interaction.guildId
+    // if (!guildID) return await interaction.reply("For server only")
+    console.log(commandName)
 
-  if (commandName == "activity") {
-    router.activity(interaction)
-  }
+    interaction["consoleChannel"] = await musicConsoleModule
+      .checkConsoleChannel(client.user, interaction.guild)
+      .catch((err) => console.log(err))
+    console.log(interaction.options)
+    if (
+      (await router.sticker.isSticker(guildID, commandName)) ||
+      router.sticker.globalCommands.some(
+        (command) => command.name == commandName,
+      )
+    ) {
+      return await router.sticker(interaction)
+    }
 
-  if (commandName == "summon") {
-    const user = interaction.options.getUser("user")
-    if (!user) return await interaction.reply("No user found")
-    const member = interaction.guild.members.cache.get(user.id)
-    if (!member) return await interaction.reply("No member found")
-    const channel = interaction.channel
-    if (!channel) return await interaction.reply("No channel found")
-    // const summonString =
-    //   `========== บทอัญเชิญบูชา ==========\n` +
-    //   `========== ${member.nickname} ==========\n` +
-    //   `=================================\n` +
-    //   `นะโม ตัสสะ ภะคะวะโต อะระหะโต สัมมาสัมพุทธัสสะ ${
-    //     interaction.options.getString("activity")
-    //       ? "__**" + interaction.options.getString("activity") + "**__"
-    //       : ""
-    //   }\n`.repeat(3) +
-    //   `มะอะอุ <@${member.id}> เมตตา จะมหาราชา สัพพะเสน่หา มะมะจิตตัง ปิยังมะมะ\n`.repeat(
-    //     9
-    //   ) +
-    //   "\n\n\n"
-    const summonString = `⣿⣿⣿⣿⣿⠟⠋⠄⠄⠄⠄⠄⠄⠄⢁⠈⢻⢿⣿⣿⣿⣿⣿⣿⣿
-    ⣿⣿⣿⣿⣿⠃⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠈⡀⠭⢿⣿⣿⣿⣿
-    ⣿⣿⣿⣿⡟⠄⢀⣾⣿⣿⣿⣷⣶⣿⣷⣶⣶⡆⠄⠄⠄⣿⣿⣿⣿
-    ⣿⣿⣿⣿⡇⢀⣼⣿<@${member.id}>⣿⣧⠄⠄⢸⣿⣿⣿⣿
-    ⣿⣿⣿⣿⣇⣼⣿⣿⠿⠶⠙⣿⡟⠡⣴⣿⣽⣿⣧⠄⢸⣿⣿⣿⣿
-    ⣿⣿⣿⣿⣿⣾⣿⣿⣟⣭⣾⣿⣷⣶⣶⣴⣶⣿⣿⢄⣿⣿⣿⣿⣿
-    ⣿⣿⣿⣿⣿⣿⣿⣿⡟⣩⣿⣿⣿⡏⢻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
-    ⣿⣿⣿⣿⣿⣿⣹⡋⠘⠷⣦⣀⣠⡶⠁⠈⠁⠄⣿⣿⣿⣿⣿⣿⣿
-    ⣿⣿⣿⣿⣿⣿⣍⠃⣴⣶⡔⠒⠄⣠⢀⠄⠄⠄⡨⣿⣿⣿⣿⣿⣿
-    ⣿⣿⣿⣿⣿⣿⣿⣦⡘⠿⣷⣿⠿⠟⠃⠄⠄⣠⡇⠈⠻⣿⣿⣿⣿
-    ⣿⣿⣿⣿⡿⠟⠋⢁⣷⣠⠄⠄⠄⠄⣀⣠⣾⡟⠄⠄⠄⠄⠉⠙⠻
-    ⡿⠟⠋⠁⠄⠄⠄⢸⣿⣿⡯⢓⣴⣾⣿⣿⡟⠄⠄⠄⠄⠄⠄⠄⠄
-    ⠄⠄⠄⠄⠄⠄⠄⣿⡟⣷⠄⠹⣿⣿⣿⡿⠁⠄⠄⠄⠄⠄⠄⠄⠄
-    ⠄⠄⠄⠄⠄⠄⣸⣿⡷⡇⠄⣴⣾⣿⣿⠃⠄⠄⠄⠄⠄⠄⠄⠄⠄
-    ⠄⠄⠄⠄⠄⠄⣿⣿⠃⣦⣄⣿⣿⣿⠇⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄
-    ⠄⠄⠄⠄⠄⢸⣿⠗⢈⡶⣷⣿⣿⡏⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄`
-    channel.send(summonString).catch((err) => console.log(err))
-    interaction.deleteReply()
+    if (
+      router.music.globalCommands.some((command) => command.name == commandName)
+    ) {
+      return await router.music(interaction)
+    }
+
+    if (commandName == "activity") {
+      router.activity(interaction)
+    }
+
+    if (
+      router.tts.globalCommands.some((command) => command.name == commandName)
+    ) {
+      return await router.tts(interaction)
+    }
+
+    if (commandName == "summon") {
+      const user = interaction.options.getUser("user")
+      if (!user) return await interaction.editReply("No user found")
+      const member = interaction.guild.members.cache.get(user.id)
+      if (!member) return await interaction.editReply("No member found")
+      const channel = interaction.channel
+      if (!channel) return await interaction.editReply("No channel found")
+      const summonString =
+        `========== บทอัญเชิญบูชา ==========\n` +
+        `========== ${member.nickname} ==========\n` +
+        `=================================\n` +
+        `นะโม ตัสสะ ภะคะวะโต อะระหะโต สัมมาสัมพุทธัสสะ ${interaction.options.getString("activity")
+          ? "__**" + interaction.options.getString("activity") + "**__"
+          : ""
+          }\n`.repeat(3) +
+        `มะอะอุ <@${member.id}> เมตตา จะมหาราชา สัพพะเสน่หา มะมะจิตตัง ปิยังมะมะ\n`.repeat(
+          9,
+        ) +
+        "\n\n\n"
+      // const summonString = `⣿⣿⣿⣿⣿⠟⠋⠄⠄⠄⠄⠄⠄⠄⢁⠈⢻⢿⣿⣿⣿⣿⣿⣿⣿
+      // ⣿⣿⣿⣿⣿⠃⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠈⡀⠭⢿⣿⣿⣿⣿
+      // ⣿⣿⣿⣿⡟⠄⢀⣾⣿⣿⣿⣷⣶⣿⣷⣶⣶⡆⠄⠄⠄⣿⣿⣿⣿
+      // ⣿⣿⣿⣿⡇⢀⣼⣿<@${member.id}>⣿⣧⠄⠄⢸⣿⣿⣿⣿
+      // ⣿⣿⣿⣿⣇⣼⣿⣿⠿⠶⠙⣿⡟⠡⣴⣿⣽⣿⣧⠄⢸⣿⣿⣿⣿
+      // ⣿⣿⣿⣿⣿⣾⣿⣿⣟⣭⣾⣿⣷⣶⣶⣴⣶⣿⣿⢄⣿⣿⣿⣿⣿
+      // ⣿⣿⣿⣿⣿⣿⣿⣿⡟⣩⣿⣿⣿⡏⢻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+      // ⣿⣿⣿⣿⣿⣿⣹⡋⠘⠷⣦⣀⣠⡶⠁⠈⠁⠄⣿⣿⣿⣿⣿⣿⣿
+      // ⣿⣿⣿⣿⣿⣿⣍⠃⣴⣶⡔⠒⠄⣠⢀⠄⠄⠄⡨⣿⣿⣿⣿⣿⣿
+      // ⣿⣿⣿⣿⣿⣿⣿⣦⡘⠿⣷⣿⠿⠟⠃⠄⠄⣠⡇⠈⠻⣿⣿⣿⣿
+      // ⣿⣿⣿⣿⡿⠟⠋⢁⣷⣠⠄⠄⠄⠄⣀⣠⣾⡟⠄⠄⠄⠄⠉⠙⠻
+      // ⡿⠟⠋⠁⠄⠄⠄⢸⣿⣿⡯⢓⣴⣾⣿⣿⡟⠄⠄⠄⠄⠄⠄⠄⠄
+      // ⠄⠄⠄⠄⠄⠄⠄⣿⡟⣷⠄⠹⣿⣿⣿⡿⠁⠄⠄⠄⠄⠄⠄⠄⠄
+      // ⠄⠄⠄⠄⠄⠄⣸⣿⡷⡇⠄⣴⣾⣿⣿⠃⠄⠄⠄⠄⠄⠄⠄⠄⠄
+      // ⠄⠄⠄⠄⠄⠄⣿⣿⠃⣦⣄⣿⣿⣿⠇⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄
+      // ⠄⠄⠄⠄⠄⢸⣿⠗⢈⡶⣷⣿⣿⡏⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄`
+      channel.send(summonString).catch((err) => console.log(err))
+      if (interaction.replied) interaction.deleteReply()
+    }
+  } catch (err) {
+
+    console.error(err)
+    console.log("Oh fuck")
   }
 })
 
@@ -173,11 +204,12 @@ client2.on("interactionCreate", async (interaction) => {
   if (!interaction.isCommand()) return
   // console.log(interaction);
   const { commandName } = interaction
-  channelID = interaction.channelId
-  guildID = interaction.guildId
-  if (!guildID) return await interaction.reply("For server only")
-  console.log(commandName)
+  const channelID = interaction.channelId
+  const guildID = interaction.guildId
   await interaction.deferReply()
+  if (!guildID) return await interaction.editReply("For server only")
+  console.log(commandName)
+
   if (
     (await router.sticker.isSticker(guildID, commandName)) ||
     router.sticker.globalCommands.some((command) => command.name == commandName)
