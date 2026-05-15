@@ -19,13 +19,14 @@ services:
       dockerfile: Dockerfile
     restart: always
     environment:
-      JAI_TTS_REF_AUDIO: /data/ref.wav
-      JAI_TTS_REF_TEXT: ${JAI_TTS_REF_TEXT:-}
-      JAI_TTS_MODEL: ${JAI_TTS_MODEL:-}
-      JAI_TTS_VOCAB: ${JAI_TTS_VOCAB:-}
+      JAI_TTS_REF_AUDIO: ./ref_audio.wav
+      JAI_TTS_REF_TEXT: ฉันเดินทางไปเที่ยวที่จังหวัดเชียงใหม่ในช่วงฤดูหนาวเพื่อสัมผัสอากาศเย็นสบาย
+      JAI_TTS_MODEL: /assets/model.pt
+      JAI_TTS_VOCAB: /assets/vocab.txt
     volumes:
       - ${JAI_TTS_REF_AUDIO:-/dev/null}:/data/ref.wav:ro
       - hf_cache:/root/.cache/huggingface
+      - ./jai-tts-service/assets:/assets
     ports:
       - "8000:8000"
     profiles:
