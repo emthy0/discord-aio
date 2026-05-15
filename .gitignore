@@ -5,3 +5,5 @@
 .env2
 .env.dev
 dist
+jai-tts-service/assets/model.pt
+.gitignore
