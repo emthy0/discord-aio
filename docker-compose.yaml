@@ -16,14 +16,14 @@ services:
           cpus: '0.25'
           memory: 250M
 
-  discord-aio-dev:
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-      target: deps
-    command: bun --watch src/index.ts
-    env_file: .env
-    volumes:
-      - ./src:/usr/src/app/src:ro
-    profiles:
-      - dev
+  # discord-aio-dev:
+  #   build:
+  #     context: .
+  #     dockerfile: ./Dockerfile
+  #     target: deps
+  #   command: bun --watch src/index.ts
+  #   env_file: .env
+  #   volumes:
+  #     - ./src:/usr/src/app/src:ro
+  #   profiles:
+  #     - dev
