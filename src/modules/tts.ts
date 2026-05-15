@@ -1,8 +1,6 @@
 import googleTTS from "google-tts-api"
 import https from "https"
-import fs from "fs"
-import path from "path"
-import { execFile } from "child_process"
+import { spawn } from "child_process"
 import {
   joinVoiceChannel,
   createAudioPlayer,
@@ -11,7 +9,7 @@ import {
   AudioPlayerStatus,
   StreamType,
 } from "@discordjs/voice"
-import type { AudioPlayer } from "@discordjs/voice"
+import type { AudioPlayer, AudioResource } from "@discordjs/voice"
 import { PermissionFlagsBits } from "discord.js"
 import type { ChatInputCommandInteraction, VoiceBasedChannel } from "discord.js"
 
@@ -23,55 +21,37 @@ interface TtsState {
 }
 
 const queue = new Map<string, TtsState>()
-const OUTPUT_DIR = path.join(__dirname, "../../modules/tts_output")
 
-function ensureOutputDir(): void {
-  fs.mkdirSync(OUTPUT_DIR, { recursive: true })
-}
-
-function fetchTTSResource(ttsUrl: string): Promise<import("@discordjs/voice").AudioResource> {
+function fetchTTSResource(ttsUrl: string): Promise<AudioResource> {
   return new Promise((resolve, reject) => {
+    const ffmpeg = spawn("ffmpeg", [
+      "-hide_banner", "-loglevel", "error",
+      "-i", "pipe:0",
+      "-c:a", "libopus",
+      "-f", "ogg",
+      "pipe:1",
+    ])
+
+    ffmpeg.on("error", reject)
+    // Suppress EPIPE when TTS is stopped mid-stream
+    ffmpeg.stdin.on("error", () => {})
+
     https
-      .get(
-        ttsUrl,
-        {
-          headers: {
-            "User-Agent":
-              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-          },
-        },
-        (res) => {
-          if (res.statusCode !== 200) {
-            res.resume()
-            reject(new Error(`TTS fetch failed: ${res.statusCode}`))
-            return
-          }
-          const chunks: Buffer[] = []
-          res.on("data", (chunk: Buffer) => chunks.push(chunk))
-          res.on("end", () => {
-            ensureOutputDir()
-            const base = path.join(OUTPUT_DIR, `tts_${Date.now()}`)
-            const mp3Path = `${base}.mp3`
-            const oggPath = `${base}.ogg`
-            fs.writeFileSync(mp3Path, Buffer.concat(chunks))
-            execFile(
-              "ffmpeg",
-              ["-i", mp3Path, "-c:a", "libopus", "-f", "ogg", "-y", oggPath],
-              (err) => {
-                fs.unlink(mp3Path, () => {})
-                if (err) { reject(err); return }
-                resolve(
-                  createAudioResource(fs.createReadStream(oggPath), {
-                    inputType: StreamType.OggOpus,
-                  }),
-                )
-              },
-            )
-          })
-          res.on("error", reject)
-        },
-      )
-      .on("error", reject)
+      .get(ttsUrl, { headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" } }, (res) => {
+        if (res.statusCode !== 200) {
+          res.resume()
+          ffmpeg.stdin.end()
+          reject(new Error(`TTS fetch failed: ${res.statusCode}`))
+          return
+        }
+        res.pipe(ffmpeg.stdin)
+        res.on("error", (err) => ffmpeg.stdin.destroy(err))
+        resolve(createAudioResource(ffmpeg.stdout, { inputType: StreamType.OggOpus }))
+      })
+      .on("error", (err) => {
+        ffmpeg.stdin.destroy()
+        reject(err)
+      })
   })
 }
 
