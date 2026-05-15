@@ -5,7 +5,6 @@ import {
   getVoiceConnection,
   AudioPlayerStatus,
   StreamType,
-  type DiscordGatewayAdapterCreator,
 } from "@discordjs/voice"
 import { PermissionFlagsBits } from "discord.js"
 import type { ChatInputCommandInteraction, VoiceBasedChannel } from "discord.js"
@@ -180,7 +179,7 @@ async function constructPlayer(serverQueue: GuildMusicState): Promise<void> {
     connection = joinVoiceChannel({
       channelId: serverQueue.voiceChannel.id,
       guildId: serverQueue.gid,
-      adapterCreator: serverQueue.voiceChannel.guild.voiceAdapterCreator as unknown as DiscordGatewayAdapterCreator,
+      adapterCreator: serverQueue.voiceChannel.guild.voiceAdapterCreator,
     })
   }
   serverQueue.player = createAudioPlayer()

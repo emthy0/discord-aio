@@ -15,18 +15,18 @@
   "license": "ISC",
   "dependencies": {
     "@discordjs/opus": "^0.10.0",
-    "@discordjs/voice": "^0.17.0",
-    "discord.js": "^14.25.1",
-    "dotenv": "^10.0.0",
+    "@discordjs/voice": "^0.19.2",
+    "discord.js": "^14.26.4",
+    "dotenv": "^17.0.0",
     "google-tts-api": "^2.0.2",
-    "libsodium-wrappers": "^0.7.16",
-    "mongoose": "^8.0.0",
+    "libsodium-wrappers": "^0.8.4",
+    "mongoose": "^8.24.0",
     "play-dl": "^1.9.7",
-    "redis": "^4.0.0",
+    "redis": "^4.7.1",
     "yt-dlp-exec": "^1.0.2"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
-    "typescript": "^5.0.0"
+    "typescript": "^5.9.3"
   }
 }

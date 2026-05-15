@@ -10,7 +10,6 @@ import {
   getVoiceConnection,
   AudioPlayerStatus,
   StreamType,
-  type DiscordGatewayAdapterCreator,
 } from "@discordjs/voice"
 import type { AudioPlayer } from "@discordjs/voice"
 import { PermissionFlagsBits } from "discord.js"
@@ -156,7 +155,7 @@ async function constructTTSPlayer(state: TtsState, guildId: string): Promise<voi
     connection = joinVoiceChannel({
       channelId: state.voiceChannel.id,
       guildId,
-      adapterCreator: state.voiceChannel.guild.voiceAdapterCreator as unknown as DiscordGatewayAdapterCreator,
+      adapterCreator: state.voiceChannel.guild.voiceAdapterCreator,
     })
   }
   state.player = createAudioPlayer()
