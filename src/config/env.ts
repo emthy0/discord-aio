@@ -17,4 +17,5 @@ export const env = {
   redisPort: process.env["REDIS_PORT"] ? parseInt(process.env["REDIS_PORT"]) : undefined,
   redisPassword: process.env["REDIS_PASSWORD"],
   redisUrl: process.env["REDISCLOUD_URL"],
+  jaiTtsServiceUrl: process.env["JAI_TTS_SERVICE_URL"],
 } as const

@@ -12,18 +12,24 @@ services:
         limits:
           cpus: '1'
           memory: 1G
-        # reservations:
-        #   cpus: '0.25'
-        #   memory: 250M
 
-  # discord-aio-dev:
-  #   build:
-  #     context: .
-  #     dockerfile: ./Dockerfile
-  #     target: deps
-  #   command: bun --watch src/index.ts
-  #   env_file: .env
-  #   volumes:
-  #     - ./src:/usr/src/app/src:ro
-  #   profiles:
-  #     - dev
+  jai-tts-service:
+    build:
+      context: ./jai-tts-service
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      JAI_TTS_REF_AUDIO: /data/ref.wav
+      JAI_TTS_REF_TEXT: ${JAI_TTS_REF_TEXT:-}
+      JAI_TTS_MODEL: ${JAI_TTS_MODEL:-}
+      JAI_TTS_VOCAB: ${JAI_TTS_VOCAB:-}
+    volumes:
+      - ${JAI_TTS_REF_AUDIO:-/dev/null}:/data/ref.wav:ro
+      - hf_cache:/root/.cache/huggingface
+    ports:
+      - "8000:8000"
+    profiles:
+      - jai
+
+volumes:
+  hf_cache:

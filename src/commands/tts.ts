@@ -1,6 +1,8 @@
 import { SlashCommandBuilder } from "discord.js"
 import type { BotCommand } from "../types/command"
 import { speak, stopTts } from "../modules/tts"
+import { speakJai, stopJaiTts } from "../modules/jai-tts"
+import { env } from "../config/env"
 
 export const ttsCommands: BotCommand[] = [
   {
@@ -55,6 +57,27 @@ export const ttsCommands: BotCommand[] = [
     data: new SlashCommandBuilder().setName("tts-stop").setDescription("หยุดพูด TTS"),
     async execute(interaction) {
       await stopTts(interaction)
+    },
+  },
+  {
+    data: new SlashCommandBuilder()
+      .setName("jtts")
+      .setDescription("พูดด้วยเสียง AI (JaiTTS)")
+      .addStringOption((opt) =>
+        opt.setName("text").setDescription("ข้อความที่ต้องการพูด").setRequired(true),
+      ),
+    async execute(interaction) {
+      if (!env.jaiTtsServiceUrl) {
+        await interaction.editReply("JaiTTS is not configured (missing JAI_TTS_SERVICE_URL)")
+        return
+      }
+      await speakJai(interaction)
+    },
+  },
+  {
+    data: new SlashCommandBuilder().setName("jtts-stop").setDescription("หยุด JaiTTS"),
+    async execute(interaction) {
+      await stopJaiTts(interaction)
     },
   },
 ]
