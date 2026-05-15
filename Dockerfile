@@ -1,16 +1,25 @@
-FROM node:18-alpine
-
+FROM oven/bun:1-alpine AS base
 WORKDIR /usr/src/app
 
-COPY package*.json ./
+# Install system deps: ffmpeg (TTS conversion), python3 (yt-dlp), yt-dlp
+RUN apk add --no-cache ffmpeg python3 yt-dlp
 
-RUN npm install
+# Install dependencies
+FROM base AS deps
+COPY package.json bun.lockb ./
+RUN bun install --frozen-lockfile --production
 
-RUN apk update
-RUN apk add
-RUN apk add ffmpeg
+# Build TypeScript
+FROM base AS build
+COPY package.json bun.lockb tsconfig.json ./
+RUN bun install --frozen-lockfile
+COPY src/ ./src/
+RUN bun run build
 
-COPY . .
+# Final image
+FROM base AS runner
+COPY --from=deps /usr/src/app/node_modules ./node_modules
+COPY --from=build /usr/src/app/dist ./dist
+COPY .env* ./
 
-CMD ["node", "index.js"]
-
+CMD ["bun", "dist/index.js"]
