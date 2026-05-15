@@ -2,3 +2,4 @@ f5-tts
 soundfile
 fastapi
 uvicorn[standard]
+huggingface_hub
