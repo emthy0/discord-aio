@@ -12,9 +12,9 @@ services:
         limits:
           cpus: '1'
           memory: 1G
-        reservations:
-          cpus: '0.25'
-          memory: 250M
+        # reservations:
+        #   cpus: '0.25'
+        #   memory: 250M
 
   # discord-aio-dev:
   #   build:
