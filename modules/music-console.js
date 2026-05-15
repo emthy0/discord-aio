@@ -6,7 +6,7 @@ const topic = '⏯ Pause/Resume the song.\n' +
   '🔀 Shuffle the queue.\n'
 
 
-module.exports.checkConsoleChannel = checkConsoleChannel = async (bot_user, guild) => {
+const checkConsoleChannel = async (bot_user, guild) => {
   let consoleChannel = guild.channels.cache.find(c => c.name === consoleChannelName);
   if (!consoleChannel) {
     consoleChannel = await guild.channels.create(consoleChannelName, {
@@ -25,6 +25,8 @@ module.exports.checkConsoleChannel = checkConsoleChannel = async (bot_user, guil
   }
   return {consoleChannel, grandMessage};
 }
+
+module.exports.checkConsoleChannel = checkConsoleChannel
 
 module.exports.updateQueue = async (interaction, serverQueue) => { 
   const guild = interaction.guild;

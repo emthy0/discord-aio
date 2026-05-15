@@ -2,7 +2,7 @@ const googleTTS = require("google-tts-api")
 const https = require("https")
 const fs = require("fs")
 const path = require("path")
-const { Readable } = require("stream")
+const { execFile } = require("child_process")
 const {
   joinVoiceChannel,
   createAudioPlayer,
@@ -22,6 +22,7 @@ function createTTSResource(ttsUrl) {
       },
     }, (res) => {
       if (res.statusCode !== 200) {
+        res.resume()
         reject(new Error(`Failed to fetch TTS audio: ${res.statusCode}`))
         return
       }
@@ -30,22 +31,16 @@ function createTTSResource(ttsUrl) {
       res.on('data', (chunk) => chunks.push(chunk))
       res.on('end', () => {
         const buffer = Buffer.concat(chunks)
-
-        // Derive filename from the `q` query param
-        const parsedUrl = new URL(ttsUrl)
-        const text = parsedUrl.searchParams.get('q') || `tts_${Date.now()}`
-        const filename = `${text}.mp3`
-        const outputPath = path.join(__dirname, 'tts_output', filename)
-
-        fs.mkdirSync(path.dirname(outputPath), { recursive: true })
-        fs.writeFileSync(outputPath, buffer)
-
-        const readable = Readable.from(buffer)
-        const audioResource = createAudioResource(readable, {
-          inputType: StreamType.Arbitrary,
+        const base = path.join(__dirname, 'tts_output', `tts_${Date.now()}`)
+        const mp3Path = `${base}.mp3`
+        const oggPath = `${base}.ogg`
+        fs.mkdirSync(path.dirname(mp3Path), { recursive: true })
+        fs.writeFileSync(mp3Path, buffer)
+        execFile('ffmpeg', ['-i', mp3Path, '-c:a', 'libopus', '-f', 'ogg', '-y', oggPath], (err) => {
+          fs.unlink(mp3Path, () => {})
+          if (err) return reject(err)
+          resolve(createAudioResource(fs.createReadStream(oggPath), { inputType: StreamType.OggOpus }))
         })
-
-        resolve({ audioResource, filePath: outputPath })
       })
       res.on('error', reject)
     }).on('error', reject)
@@ -100,12 +95,12 @@ module.exports.speak = async (interaction) => {
       `🔊 พูด: "${text.substring(0, 100)}${text.length > 100 ? "..." : ""}"`,
     )
 
-    // if (!serverQueue.playing) {
-    playNext(serverQueue, guildId)
-    // }
+    if (!serverQueue.playing) {
+      playNext(serverQueue, guildId)
+    }
   } catch (err) {
     console.error("TTS error:", err)
-    return await interaction.editReply("TTS error: " + err.message)
+    return await interaction.editReply("TTS error: " + (err instanceof Error ? err.message : String(err)))
   }
 }
 
@@ -166,28 +161,13 @@ function playNext(serverQueue, guildId) {
   serverQueue.playing = true
 
   createTTSResource(url)
-    .then(({ audioResource }) => {
+    .then((audioResource) => {
       serverQueue.player.play(audioResource)
     })
     .catch((err) => {
       console.error("TTS playback error:", err)
+      playNext(serverQueue, guildId)
     })
-    .finally(() => playNext(serverQueue, guildId))
-  // https.get(url, (response) => {
-  //   // Follow redirects
-  //   if (response.statusCode === 302 || response.statusCode === 301) {
-  //     https.get(response.headers.location, (redirected) => {
-  //       const resource = createAudioResource(redirected);
-  //       serverQueue.player.play(resource);
-  //     });
-  //     return;
-  //   }
-  //   const resource = createAudioResource(response);
-  //   serverQueue.player.play(resource);
-  // }).on('error', (err) => {
-  //   console.error('TTS fetch error:', err);
-  //   playNext(serverQueue, guildId);
-  // });
 }
 
 async function temporaryReply(interaction, text = "...") {

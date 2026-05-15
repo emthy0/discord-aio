@@ -112,7 +112,12 @@ client.on(Events.InteractionCreate, async (interaction) => {
     // await interaction.deferReply().catch(console.error)
 
     if (!interaction.isCommand() || !interaction.isChatInputCommand()) return
-    interaction.deferReply()
+    // interaction.deferReply()
+    await interaction.deferReply().catch((e) => {
+      console.error(e)
+      console.log("OH timeout")
+      throw e
+    })
     // interaction.deferReply().catch(e=>{})
     // console.log(interaction);
     const { commandName } = interaction
@@ -161,11 +166,10 @@ client.on(Events.InteractionCreate, async (interaction) => {
         `========== บทอัญเชิญบูชา ==========\n` +
         `========== ${member.nickname} ==========\n` +
         `=================================\n` +
-        `นะโม ตัสสะ ภะคะวะโต อะระหะโต สัมมาสัมพุทธัสสะ ${
-          interaction.options.getString("activity")
-            ? "__**" + interaction.options.getString("activity") + "**__"
-            : ""
-        }\n`.repeat(3) +
+        `นะโม ตัสสะ ภะคะวะโต อะระหะโต สัมมาสัมพุทธัสสะ ${interaction.options.getString("activity")
+          ? "__**" + interaction.options.getString("activity") + "**__"
+          : ""
+          }\n`.repeat(3) +
         `มะอะอุ <@${member.id}> เมตตา จะมหาราชา สัพพะเสน่หา มะมะจิตตัง ปิยังมะมะ\n`.repeat(
           9,
         ) +
@@ -190,7 +194,9 @@ client.on(Events.InteractionCreate, async (interaction) => {
       if (interaction.replied) interaction.deleteReply()
     }
   } catch (err) {
+
     console.error(err)
+    console.log("Oh fuck")
   }
 })
 
