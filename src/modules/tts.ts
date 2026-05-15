@@ -1,4 +1,4 @@
-import googleTTS from "google-tts-api"
+import { getAllAudioUrls } from "google-tts-api"
 import https from "https"
 import { spawn } from "child_process"
 import {
@@ -74,7 +74,7 @@ export async function speak(interaction: ChatInputCommandInteraction): Promise<v
   }
 
   try {
-    const audioUrls = googleTTS.getAllAudioUrls(text, {
+    const audioUrls = getAllAudioUrls(text, {
       lang,
       slow: false,
       host: "https://translate.google.com",
